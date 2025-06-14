@@ -1,15 +1,21 @@
 import dotenv from "dotenv";
+import { z } from "zod";
 
 dotenv.config();
 
-interface ENVConfig {
-    port : number;
-    nodeEnv: string;
+const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
+  PORT: z.string().transform(Number).default("3000"),
+  TMDB_ACCESS_TOKEN: z.string().min(1, "TMDB token is required")
+});
+
+const parsedEnv = envSchema.safeParse(process.env);
+
+if (!parsedEnv.success) {
+  console.warn(`Invalid env variables: ${parsedEnv.error.format()}`);
+  process.exit(1)
 }
 
-const envConfig: ENVConfig = {
-    port: Number(process.env.PORT),
-    nodeEnv: process.env.NODE_ENV || "development"
-}
-
-export default envConfig;
+export const env = parsedEnv.data;
