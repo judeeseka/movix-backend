@@ -5,6 +5,7 @@ import { env } from "./config/envConfig";
 import logger from "./utils/logger";
 import errorHandler from "./middleware/errorHandler";
 import movieRoutes from "./routes/movie-routes"
+import seriesRoutes from "./routes/series-routes"
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(cors())
 app.use(express.json());
 
 app.use("/api/movies", movieRoutes)
+app.use("/api/series", seriesRoutes)
 
 app.use(errorHandler)
 
