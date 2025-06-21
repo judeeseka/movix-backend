@@ -54,3 +54,30 @@ export const getTopRatedSeries = async(_req: Request, res: Response) => {
         })
     }
 }
+
+export const getAllSeries = async (req: Request, res: Response) => {
+    try {
+        const {data} = await tmdbApi.get("/discover/tv", {
+            params: {
+                ...req.query
+            }
+        } );
+        logger.info("fetching all tv series")
+
+        sendResponse({
+            res,
+            data,
+        })
+    } catch (error) {
+        logger.error("Failed to fetch all tv series", {
+            error: (error instanceof AxiosError) ? error.message : error,
+            stack: error instanceof AxiosError ? error.stack : null
+        })
+        sendResponse({
+            res,
+            statusCode: 500,
+            success: false,
+            message: "Failed to fetch all tv series"
+        })
+    }
+}

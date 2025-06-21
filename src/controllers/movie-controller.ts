@@ -81,3 +81,30 @@ export const getTopRatedMovies = async (_req: Request, res: Response) => {
         })
     }
 }
+
+export const getAllMovies = async (req: Request, res: Response) => {
+    try {
+        const {data} = await tmdbApi.get("/discover/movie", {
+            params: {
+                ...req.query
+            }
+        } );
+        logger.info("fetching all movies")
+
+        sendResponse({
+            res,
+            data,
+        })
+    } catch (error) {
+        logger.error("Failed to fetch all movies", {
+            error: (error instanceof AxiosError) ? error.message : error,
+            stack: error instanceof AxiosError ? error.stack : null
+        })
+        sendResponse({
+            res,
+            statusCode: 500,
+            success: false,
+            message: "Failed to fetch all movies"
+        })
+    }
+}
