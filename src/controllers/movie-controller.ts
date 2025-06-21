@@ -108,3 +108,99 @@ export const getAllMovies = async (req: Request, res: Response) => {
         })
     }
 }
+
+export const getMovieDetails = async (req: Request, res: Response) => {
+    const {id} = req.params;
+    try {
+        const [details, casts] = await Promise.all([
+            tmdbApi.get(`/movie/${id}`),
+            tmdbApi.get(`/movie/${id}/credits`),
+        ])
+
+        logger.info(`movie info with id: ${id} fetched successfully`)
+        
+        const data = {
+            details: details.data,
+            casts: casts.data,
+        }
+
+        sendResponse({
+            res,
+            data
+        })
+        
+    } catch (error) {
+        logger.error("Failed to fetch movie details", {
+            error: (error instanceof AxiosError) ? error.message : error,
+            stack: error instanceof AxiosError ? error.stack : null
+        })
+        sendResponse({
+            res,
+            statusCode: 500,
+            success: false,
+            message: "Failed to fetch movie details"
+        })
+    }
+}
+
+export const getMovieReviews = async (req: Request, res: Response) => {
+    const {id} = req.params;
+
+    try {
+        const response = await tmdbApi.get(`/movie/${id}/reviews`, {
+            params: {
+                ...req.query
+            }
+        })
+
+        logger.info(`movie reviews with id: ${id} fetched successfully`)
+
+        sendResponse({
+            res,
+            data: response.data
+        })
+        
+    } catch (error) {
+        logger.error(`Failed to fetch movie review for id: ${id}`, {
+            error: (error instanceof AxiosError) ? error.message : error,
+            stack: error instanceof AxiosError ? error.stack : null
+        })
+        sendResponse({
+            res,
+            statusCode: 500,
+            success: false,
+            message: `Failed to fetch movie review for id: ${id}`
+        })
+    }
+}
+
+export const getMovieRecommendations = async (req: Request, res: Response) => {
+    const {id} = req.params;
+
+    try {
+        const response = await tmdbApi.get(`/movie/${id}/recommendations`, {
+            params: {
+                ...req.query
+            }
+        })
+
+        logger.info(`movie recommendations for id: ${id} fetched successfully`)
+
+        sendResponse({
+            res,
+            data: response.data
+        })
+        
+    } catch (error) {
+        logger.error(`Failed to fetch movie recommendations for id: ${id}`, {
+            error: (error instanceof AxiosError) ? error.message : error,
+            stack: error instanceof AxiosError ? error.stack : null
+        })
+        sendResponse({
+            res,
+            statusCode: 500,
+            success: false,
+            message: `Failed to fetch movie recommendations for id: ${id}`
+        })
+    }
+}
