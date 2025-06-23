@@ -8,8 +8,11 @@ const envSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
   PORT: z.string().transform(Number).default("3000"),
-  TMDB_ACCESS_TOKEN: z.string().min(1, "TMDB token is required")
+  TMDB_ACCESS_TOKEN: z.string().min(1, "TMDB token is required"),
+  JWT_SECRET: z.string().min(1, "JWT secret is required"),
+  MONGO_URI: z.string().min(1, "Mongo URI is required")
 });
+
 
 const parsedEnv = envSchema.safeParse(process.env);
 

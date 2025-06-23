@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../utils/logger";
-import sendResponse from "../utils/sendResponse";
+import sendResponse from "../utils/send-response";
 import { AxiosError } from "axios";
 import tmdbApi from "../config/axios";
 

@@ -1,14 +1,18 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
-import { env } from "./config/envConfig";
+import { env } from "./config/env-config";
 import logger from "./utils/logger";
 import errorHandler from "./middleware/errorHandler";
 import movieRoutes from "./routes/movie-routes"
 import seriesRoutes from "./routes/series-routes"
 import searchRoutes from "./routes/search-routes"
+import authRoutes from "./routes/auth-routes"
+import { connectToDb } from "./config/db";
 
 const app = express();
+
+connectToDb()
 
 app.use(helmet());
 app.use(cors())
@@ -17,6 +21,7 @@ app.use(express.json());
 app.use("/api/movies", movieRoutes)
 app.use("/api/series", seriesRoutes)
 app.use("/api/search", searchRoutes)
+app.use("/api/auth", authRoutes)
 
 app.use(errorHandler)
 

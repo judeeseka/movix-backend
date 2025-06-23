@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import logger from "../utils/logger";
 import { AxiosError } from "axios";
-import sendResponse from "../utils/sendResponse";
+import sendResponse from "../utils/send-response";
 import tmdbApi from "../config/axios";
 
 export const getPopularSeries = async(_req: Request, res: Response) => {
