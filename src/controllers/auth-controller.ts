@@ -9,11 +9,11 @@ import RefreshToken from "../models/refresh-token";
 
 export const registerUser = async (req: Request, res: Response) => {
     try {
-        const {data, error} = validateRegistrationData(req.body)
+        const { data, error } = validateRegistrationData(req.body)
         if (error) {
             logger.warn("Validation error", error.message)
             sendResponse({
-                res, 
+                res,
                 statusCode: 400,
                 success: false,
                 message: error.message
@@ -21,10 +21,10 @@ export const registerUser = async (req: Request, res: Response) => {
             return;
         }
 
-        const {email, password, name, username} = data;
+        const { email, password, name, username } = data;
 
         let user = await User.findOne({
-            $or: [{email}, {username}]
+            $or: [{ email }, { username }]
         })
 
         if (user) {
@@ -56,9 +56,10 @@ export const registerUser = async (req: Request, res: Response) => {
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: env.NODE_ENV === "production" ? true : false,
-            sameSite: "none",
+            sameSite: env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 3 * 24 * 60 * 60 * 1000
-        })
+        });
+
 
         sendResponse({
             res,
@@ -85,11 +86,11 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const loginUser = async (req: Request, res: Response) => {
     try {
-        const  {data, error} = validateLoginData(req.body)
+        const { data, error } = validateLoginData(req.body)
         if (error) {
             logger.warn("Validation error", error.message)
             sendResponse({
-                res, 
+                res,
                 statusCode: 400,
                 success: false,
                 message: error.message
@@ -97,9 +98,9 @@ export const loginUser = async (req: Request, res: Response) => {
             return;
         }
 
-        const {email, password} = data;
+        const { email, password } = data;
 
-        const user = await User.findOne({email});
+        const user = await User.findOne({ email });
 
         if (!user) {
             logger.warn("User does not exist, Register an account");
@@ -113,16 +114,17 @@ export const loginUser = async (req: Request, res: Response) => {
             return;
         }
 
-        if (user && ( await user.comparePassword(password))) {
-            const {accessToken, refreshToken} = await generateToken(user)
+        if (user && (await user.comparePassword(password))) {
+            const { accessToken, refreshToken } = await generateToken(user)
 
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: env.NODE_ENV === "production" ? true : false,
-                sameSite: "none",
+                sameSite: env.NODE_ENV === "production" ? "none" : "lax",
                 maxAge: 3 * 24 * 60 * 60 * 1000
-            })
-    
+            });
+
+
             sendResponse({
                 res,
                 statusCode: 200,
@@ -135,14 +137,14 @@ export const loginUser = async (req: Request, res: Response) => {
             return;
         } else {
             sendResponse({
-                res, 
+                res,
                 statusCode: 400,
                 message: "Invalid Password",
                 success: false
             })
             return
         }
-        
+
     } catch (error) {
         logger.error("Error logging in user", {
             error: (error instanceof Error) ? error.message : error,
@@ -160,20 +162,30 @@ export const loginUser = async (req: Request, res: Response) => {
 export const logoutUser = async (req: Request, res: Response) => {
     try {
         const cookies = req.cookies;
-        if (!cookies?.refreshToken) return res.sendStatus(204);
+        if (!cookies?.refreshToken) {
+            sendResponse({
+                res,
+                message: "Cookie cleared"
+            })
+            return
+        }
 
         const refreshToken = cookies.refreshToken;
 
-        await RefreshToken.deleteOne({token: refreshToken});
+        await RefreshToken.deleteOne({ token: refreshToken });
         res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: env.NODE_ENV === "production" ? true : false,
-            sameSite: "none",
+            sameSite: env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 3 * 24 * 60 * 60 * 1000
         })
 
-        res.sendStatus(204)
-        
+        sendResponse({
+            res,
+            message: "Cookie cleared"
+        })
+        return
+
     } catch (error) {
         logger.error("Error logging out user", {
             error: (error instanceof Error) ? error.message : error,

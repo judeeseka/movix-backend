@@ -1,6 +1,7 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { env } from "./config/env-config";
 import logger from "./utils/logger";
 import errorHandler from "./middleware/errorHandler";
@@ -15,7 +16,11 @@ const app = express();
 connectToDb()
 
 app.use(helmet());
-app.use(cors())
+app.use(cookieParser())
+app.use(cors({
+    origin: "http://localhost:5174",
+    credentials: true
+}))
 app.use(express.json());
 
 app.use("/api/movies", movieRoutes)
