@@ -24,6 +24,21 @@ const UserSchema = new mongoose.Schema<IUserDocument>({
     password: {
         type: String,
         required: true
+    },
+    bio: {
+        type: String
+    },
+    imageUrl: {
+        path: { type: String },
+        filename: { type: String }
+    },
+    preferredGenres: {
+        type: [String]
+    },
+    isOnboarded: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 }, {timestamps: true})
 

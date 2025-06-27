@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import { validateLoginData, validateRegistrationData } from "../utils/validators";
+import { validateLoginData, validateOnboardingData, validateRegistrationData } from "../utils/validators";
 import logger from "../utils/logger";
 import sendResponse from "../utils/send-response";
 import User from "../models/user";
 import { generateToken } from "../utils/generate-token";
 import { env } from "../config/env-config";
 import RefreshToken from "../models/refresh-token";
+import { AuthenticatedRequest, IUser } from "../interfaces/interface";
 
 export const registerUser = async (req: Request, res: Response) => {
     try {
@@ -64,10 +65,12 @@ export const registerUser = async (req: Request, res: Response) => {
         sendResponse({
             res,
             statusCode: 201,
-            message: "User registered successfully",
+            message: "Registration successful, proceed to onboarding.",
             data: {
-                username: user.name,
-                token: accessToken
+                userId: user._id,
+                username: user.username,
+                token: accessToken,
+                isOnboarded: user.isOnboarded
             }
         })
     } catch (error) {
@@ -128,10 +131,12 @@ export const loginUser = async (req: Request, res: Response) => {
             sendResponse({
                 res,
                 statusCode: 200,
-                message: "login successful!!",
+                message: "Login Successful!!",
                 data: {
-                    username: user.name,
-                    token: accessToken
+                    userId: user._id,
+                    username: user.username,
+                    token: accessToken,
+                    isOnboarded: user.isOnboarded
                 }
             })
             return;
@@ -188,6 +193,74 @@ export const logoutUser = async (req: Request, res: Response) => {
 
     } catch (error) {
         logger.error("Error logging out user", {
+            error: (error instanceof Error) ? error.message : error,
+            stack: error instanceof Error ? error.stack : null
+        })
+        sendResponse({
+            res,
+            statusCode: 500,
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+export const onboardUser = async (req: AuthenticatedRequest, res: Response) => {
+    const { data, error } = validateOnboardingData(req.body)
+    
+    try {
+        if (error) {
+            logger.warn("Validation error", error.message)
+            sendResponse({
+                res,
+                statusCode: 400,
+                success: false,
+                message: error.message
+            })
+            return;
+        }
+
+        let onboardingData: Partial<IUser> = {
+            preferredGenres: data.preferredGenres,
+            isOnboarded: true,
+            ...(data?.bio ? { bio: data?.bio } : {})
+          };
+          
+          if (req.file) {
+            const { filename, path } = req.file as Express.Multer.File;
+            onboardingData.imageUrl = {
+              path,
+              filename
+            };
+          }
+          
+        const user = await User.findByIdAndUpdate(
+            req.userId,
+            { $set: onboardingData },
+            { new: true }
+        )
+
+        if (!user) {
+            logger.warn("Couldn't complete onboarding process, try again.")
+            sendResponse({
+                res,
+                statusCode: 400,
+                message: "Couldn't complete onboarding process, try again.",
+                success: false
+            })
+            return
+        }
+
+        sendResponse({
+            res,
+            message: "Onboarding Successful, Welcome.",
+            data: {
+                ...(req.file && {avatarUrl: user.imageUrl.path}),
+                isOnboarded: user.isOnboarded
+            }
+        })
+    } catch (error) {
+        logger.error("Error onboarding user", {
             error: (error instanceof Error) ? error.message : error,
             stack: error instanceof Error ? error.stack : null
         })

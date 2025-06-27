@@ -4,7 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { env } from "./config/env-config";
 import logger from "./utils/logger";
-import errorHandler from "./middleware/errorHandler";
+import errorHandler from "./middleware/error-handler";
 import movieRoutes from "./routes/movie-routes"
 import seriesRoutes from "./routes/series-routes"
 import searchRoutes from "./routes/search-routes"

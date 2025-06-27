@@ -19,3 +19,14 @@ export const validateLoginData = (data: Record<string, string>) => {
 
     return schema.safeParse(data)
 }
+
+export const validateOnboardingData = (data: Record<string, string>) => {
+    const schema = z.object({
+        bio: z.string().optional(),
+        preferredGenres: z.array(
+            z.string()
+        )
+    })
+
+    return schema.safeParse(data)
+}
