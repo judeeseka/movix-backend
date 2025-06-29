@@ -22,3 +22,14 @@ export interface IUserDocument extends IUser, Document {
 export interface AuthenticatedRequest extends Request {
     userId?: string;
   }
+
+export interface IRefreshToken {
+    token: string;
+    expiresAt: Date;
+    user: {
+        _id: string;
+        username: string
+    }
+}
+
+export interface IRefreshTokenDocument extends IRefreshToken, Document {}

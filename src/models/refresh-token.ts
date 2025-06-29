@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { IRefreshTokenDocument } from "../interfaces/interface";
 
-const RefreshTokenSchema = new mongoose.Schema({
+const RefreshTokenSchema = new mongoose.Schema<IRefreshTokenDocument>({
     token: {
         type: String,
         required: true,
@@ -19,6 +20,6 @@ const RefreshTokenSchema = new mongoose.Schema({
 
 RefreshTokenSchema.index({expiresAt: 1}, {expireAfterSeconds: 0})
 
-const RefreshToken = mongoose.model("RefreshToken", RefreshTokenSchema)
+const RefreshToken = mongoose.model<IRefreshTokenDocument>("RefreshToken", RefreshTokenSchema)
 
 export default RefreshToken

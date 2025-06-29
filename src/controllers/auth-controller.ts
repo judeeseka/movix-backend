@@ -7,6 +7,7 @@ import { generateToken } from "../utils/generate-token";
 import { env } from "../config/env-config";
 import RefreshToken from "../models/refresh-token";
 import { AuthenticatedRequest, IUser } from "../interfaces/interface";
+import jwt from "jsonwebtoken"
 
 export const registerUser = async (req: Request, res: Response) => {
     try {
@@ -261,6 +262,71 @@ export const onboardUser = async (req: AuthenticatedRequest, res: Response) => {
         })
     } catch (error) {
         logger.error("Error onboarding user", {
+            error: (error instanceof Error) ? error.message : error,
+            stack: error instanceof Error ? error.stack : null
+        })
+        sendResponse({
+            res,
+            statusCode: 500,
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
+
+export const refresh = async (req: Request, res: Response) => {
+    try {
+        const cookies = req.cookies;
+        if (!cookies?.refreshToken) {
+            sendResponse({
+                res,
+                statusCode: 401,
+                message: "Missing refresh token",
+                success: false
+            })
+            return
+        }
+
+        const refreshToken = cookies.refreshToken;
+
+        const validateRefresh = await RefreshToken.findOne({ token: refreshToken }).populate("user")
+
+        if (!validateRefresh) {
+            logger.warn("Unable to validate refresh token");
+
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: env.NODE_ENV === "production" ? true : false,
+                sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+                maxAge: 3 * 24 * 60 * 60 * 1000
+            })
+
+            sendResponse({
+                res,
+                statusCode: 401,
+                message: "Invalid/Expired refresh token",
+                success: false
+            })
+
+            return
+        } else {
+            logger.warn("Refresh token still valid");
+
+            const accessToken = jwt.sign({
+                    userId: validateRefresh.user._id,
+                    username: validateRefresh.user.username
+                }, env.JWT_SECRET, {expiresIn: "15m"})
+
+            sendResponse({
+                res,
+                data: {
+                    accessToken
+                }
+            })
+        }
+
+    } catch (error) {
+        logger.error("Error refreshing access token", {
             error: (error instanceof Error) ? error.message : error,
             stack: error instanceof Error ? error.stack : null
         })
