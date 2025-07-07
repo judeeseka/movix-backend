@@ -229,7 +229,7 @@ export const onboardUser = async (req: AuthenticatedRequest, res: Response) => {
           
           if (req.file) {
             const { filename, path } = req.file as Express.Multer.File;
-            onboardingData.imageUrl = {
+            onboardingData.profileImage = {
               path,
               filename
             };
@@ -256,7 +256,7 @@ export const onboardUser = async (req: AuthenticatedRequest, res: Response) => {
             res,
             message: "Onboarding Successful, Welcome.",
             data: {
-                ...(req.file && {avatarUrl: user.imageUrl.path}),
+                ...(req.file && {avatarUrl: user.profileImage.path}),
                 isOnboarded: user.isOnboarded
             }
         })

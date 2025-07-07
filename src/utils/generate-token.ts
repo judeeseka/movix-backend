@@ -1,12 +1,12 @@
 import { Document } from "mongoose";
 import jwt from "jsonwebtoken"
-import { IUserDocument } from "../interfaces/interface";
+import { IUser } from "../interfaces/interface";
 import { env } from "../config/env-config";
 import crypto from "crypto"
 import RefreshToken from "../models/refresh-token";
 
 
-export const generateToken = async (user: IUserDocument) => {
+export const generateToken = async (user: IUser) => {
     const accessToken = jwt.sign({
         userId: user._id,
         username: user.username

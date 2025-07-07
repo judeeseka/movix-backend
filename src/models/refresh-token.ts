@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
-import { IRefreshTokenDocument } from "../interfaces/interface";
+import { IRefreshToken } from "../interfaces/interface";
 
-const RefreshTokenSchema = new mongoose.Schema<IRefreshTokenDocument>({
+const RefreshTokenSchema = new mongoose.Schema<IRefreshToken>({
     token: {
         type: String,
         required: true,
         unique: true
     },
     user: {
-        type: mongoose.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
@@ -20,6 +20,6 @@ const RefreshTokenSchema = new mongoose.Schema<IRefreshTokenDocument>({
 
 RefreshTokenSchema.index({expiresAt: 1}, {expireAfterSeconds: 0})
 
-const RefreshToken = mongoose.model<IRefreshTokenDocument>("RefreshToken", RefreshTokenSchema)
+const RefreshToken = mongoose.model<IRefreshToken>("RefreshToken", RefreshTokenSchema)
 
 export default RefreshToken

@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt"
-import { IUserDocument } from "../interfaces/interface";
+import { IUser } from "../interfaces/interface";
 
-const UserSchema = new mongoose.Schema<IUserDocument>({
+const UserSchema = new mongoose.Schema<IUser>({
     name: {
         type: String,
         required: true,
@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema<IUserDocument>({
     bio: {
         type: String
     },
-    imageUrl: {
+    profileImage: {
         path: { type: String },
         filename: { type: String }
     },
@@ -39,7 +39,32 @@ const UserSchema = new mongoose.Schema<IUserDocument>({
         type: Boolean,
         required: true,
         default: false
-    }
+    },
+    favorites: [
+        {
+            itemId: { type: String },
+            itemType: { type: String, enum: ["movie", "tv"] }
+        }
+    ],
+    watchLists: [
+        {
+            _id: {
+                type: mongoose.Schema.Types.ObjectId,
+                auto: true
+            },
+            name: {
+                type: String,
+                trim: true
+            },
+            media: [
+                {
+                    mediaId: { type: String },
+                    mediaType: { type: String, enum: ["movie", "tv"] }
+                }
+            ]
+        }
+    ]
+    
 }, {timestamps: true})
 
 UserSchema.pre("save", async function (next) {
@@ -55,6 +80,6 @@ UserSchema.methods.comparePassword = async function (userPassword: string) {
     return await bcrypt.compare(userPassword, this.password)
 }
 
-const User = mongoose.model<IUserDocument>("User", UserSchema)
+const User = mongoose.model<IUser>("User", UserSchema)
 
 export default User

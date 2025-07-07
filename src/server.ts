@@ -8,7 +8,8 @@ import errorHandler from "./middleware/error-handler";
 import movieRoutes from "./routes/movie-routes"
 import seriesRoutes from "./routes/series-routes"
 import searchRoutes from "./routes/search-routes"
-import authRoutes from "./routes/auth-routes"
+import authRoutes from "./routes/auth-routes";
+import userRoutes from "./routes/user-routes";
 import { connectToDb } from "./config/db";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/movies", movieRoutes)
 app.use("/api/series", seriesRoutes)
 app.use("/api/search", searchRoutes)
 app.use("/api/auth", authRoutes)
+app.use("/api/users", userRoutes)
 
 app.use(errorHandler)
 

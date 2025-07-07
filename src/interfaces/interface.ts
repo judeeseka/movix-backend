@@ -1,29 +1,38 @@
 import { Request } from "express";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface IUser {
+export interface IUser extends Document {
     name: string,
     email: string;
     username: string;
     password: string;
     bio: string;
-    imageUrl: {
+    profileImage: {
         path: string;
         filename: string;
     }
     preferredGenres: string[]
-    isOnboarded: boolean
-}
-
-export interface IUserDocument extends IUser, Document {
+    isOnboarded: boolean;
+    favorites: {
+        itemId: string;
+        itemType: "movie" | "tv"
+    }[];
+    watchLists: {
+        _id: Types.ObjectId;
+        name: string;
+        media: {
+            mediaId: string;
+            mediaType: "movie" | "tv"
+        }[]
+    }[]
     comparePassword(userPassword: string): Promise<boolean>
 }
 
 export interface AuthenticatedRequest extends Request {
     userId?: string;
-  }
+}
 
-export interface IRefreshToken {
+export interface IRefreshToken extends Document {
     token: string;
     expiresAt: Date;
     user: {
@@ -32,4 +41,12 @@ export interface IRefreshToken {
     }
 }
 
-export interface IRefreshTokenDocument extends IRefreshToken, Document {}
+export interface IReview extends Document {
+    userId: Types.ObjectId;
+    mediaId: string;
+    mediaType: "movie" | "tv";
+    rating: number;
+    comment?: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
