@@ -30,3 +30,16 @@ export const validateOnboardingData = (data: Record<string, string>) => {
 
     return schema.safeParse(data)
 }
+
+export const validateProfileData = (data: Record<string, string>) => {
+    const schema = z.object({
+        name: z.string().min(2, "Fullname must be at least 2 characters").optional(),
+        username: z.string().min(3, "username must be at least 3 characters").optional(),
+        bio: z.string().optional(),
+        preferredGenres: z.array(
+            z.string()
+        ).optional()
+    })
+
+    return schema.safeParse(data)
+}
