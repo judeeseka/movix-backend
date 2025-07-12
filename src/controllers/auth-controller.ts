@@ -338,3 +338,40 @@ export const refresh = async (req: Request, res: Response) => {
         })
     }
 }
+
+export const getAuthData = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            sendResponse({
+                res,
+                success: false,
+                message: "User not found",
+                statusCode: 404
+            })
+            return;
+        }
+        
+        sendResponse({
+            res,
+            data: {
+                userId: user._id,
+                username: user.username,
+                isOnboarded: user.isOnboarded,
+                avatarUrl: user.profileImage.path
+            }
+        })  
+    } catch (error) {
+        logger.error("Error fetching auth data", {
+            error: (error instanceof Error) ? error.message : error,
+            stack: error instanceof Error ? error.stack : null
+        })
+        sendResponse({
+            res,
+            statusCode: 500,
+            success: false,
+            message: "Internal server error"
+        })
+    }
+}
