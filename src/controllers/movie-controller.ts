@@ -3,10 +3,12 @@ import logger from "../utils/logger";
 import sendResponse from "../utils/send-response";
 import { AxiosError } from "axios";
 import tmdbApi from "../config/axios";
+import User from "../models/user";
+import { AuthenticatedRequest } from "../interfaces/interface";
 
 export const getTrendingMovies = async (_req: Request, res: Response) => {
     try {
-        const {data} = await tmdbApi.get("/trending/all/day");
+        const { data } = await tmdbApi.get("/trending/all/day");
 
         logger.info("Trending movies fetched successfully")
 
@@ -33,7 +35,7 @@ export const getTrendingMovies = async (_req: Request, res: Response) => {
 export const getPopularMovies = async (_req: Request, res: Response) => {
     try {
 
-        const {data} = await tmdbApi.get("/movie/popular")
+        const { data } = await tmdbApi.get("/movie/popular")
         logger.info("Popular movies fetched successfully")
 
         sendResponse({
@@ -41,7 +43,7 @@ export const getPopularMovies = async (_req: Request, res: Response) => {
             data,
             message: "Popular movies fetched successfully"
         })
-        
+
     } catch (error) {
         logger.error("Failed to fetch popular movies", {
             error: (error instanceof AxiosError) ? error.message : error,
@@ -59,7 +61,7 @@ export const getPopularMovies = async (_req: Request, res: Response) => {
 export const getTopRatedMovies = async (_req: Request, res: Response) => {
     try {
 
-        const {data} = await tmdbApi.get("/movie/top_rated")
+        const { data } = await tmdbApi.get("/movie/top_rated")
         logger.info("Top rated movies fetched successfully")
 
         sendResponse({
@@ -67,7 +69,7 @@ export const getTopRatedMovies = async (_req: Request, res: Response) => {
             data,
             message: "Top rated movies fetched successfully"
         })
-        
+
     } catch (error) {
         logger.error("Failed to fetch top rated movies", {
             error: (error instanceof AxiosError) ? error.message : error,
@@ -84,11 +86,11 @@ export const getTopRatedMovies = async (_req: Request, res: Response) => {
 
 export const getAllMovies = async (req: Request, res: Response) => {
     try {
-        const {data} = await tmdbApi.get("/discover/movie", {
+        const { data } = await tmdbApi.get("/discover/movie", {
             params: {
                 ...req.query
             }
-        } );
+        });
         logger.info("fetching all movies")
 
         sendResponse({
@@ -109,8 +111,9 @@ export const getAllMovies = async (req: Request, res: Response) => {
     }
 }
 
-export const getMovieDetails = async (req: Request, res: Response) => {
-    const {id} = req.params;
+export const getMovieDetails = async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req?.userId
     try {
         const [details, casts] = await Promise.all([
             tmdbApi.get(`/movie/${id}`),
@@ -118,7 +121,20 @@ export const getMovieDetails = async (req: Request, res: Response) => {
         ])
 
         logger.info(`movie info with id: ${id} fetched successfully`)
-        
+
+        if (userId) {
+            const user = await User.findById(userId).select("favorites");
+
+            if (user) {
+                const favouriteItem = user.favorites.find((item) => item.id === Number(id) && item.media_type === "movie");
+
+                if (favouriteItem) {
+                    favouriteItem.vote_average = details.data.vote_average
+                    await user.save()
+                } 
+            }
+        }
+
         const data = {
             details: details.data,
             casts: casts.data,
@@ -128,7 +144,7 @@ export const getMovieDetails = async (req: Request, res: Response) => {
             res,
             data
         })
-        
+
     } catch (error) {
         logger.error("Failed to fetch movie details", {
             error: (error instanceof AxiosError) ? error.message : error,
@@ -144,7 +160,7 @@ export const getMovieDetails = async (req: Request, res: Response) => {
 }
 
 export const getMovieReviews = async (req: Request, res: Response) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
     try {
         const response = await tmdbApi.get(`/movie/${id}/reviews`, {
@@ -159,7 +175,7 @@ export const getMovieReviews = async (req: Request, res: Response) => {
             res,
             data: response.data
         })
-        
+
     } catch (error) {
         logger.error(`Failed to fetch movie review for id: ${id}`, {
             error: (error instanceof AxiosError) ? error.message : error,
@@ -175,7 +191,7 @@ export const getMovieReviews = async (req: Request, res: Response) => {
 }
 
 export const getMovieRecommendations = async (req: Request, res: Response) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
     try {
         const response = await tmdbApi.get(`/movie/${id}/recommendations`, {
@@ -190,7 +206,7 @@ export const getMovieRecommendations = async (req: Request, res: Response) => {
             res,
             data: response.data
         })
-        
+
     } catch (error) {
         logger.error(`Failed to fetch movie recommendations for id: ${id}`, {
             error: (error instanceof AxiosError) ? error.message : error,

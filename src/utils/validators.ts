@@ -43,3 +43,18 @@ export const validateProfileData = (data: Record<string, string>) => {
 
     return schema.safeParse(data)
 }
+
+export const validateUserFavouriteInfo = (data: Record<string, string | number | Date>) => {
+    const schema = z.object({
+        id: z.number(),
+        title: z.string().optional(),
+        name: z.string().optional(),
+        first_air_date: z.string().optional(),
+        release_date: z.string().optional(),
+        poster_path: z.string(),
+        vote_average: z.number(),
+        media_type: z.enum(["movie", "tv"])
+    })
+
+    return schema.safeParse(data)
+}

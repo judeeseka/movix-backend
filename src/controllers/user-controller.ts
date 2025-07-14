@@ -4,21 +4,9 @@ import logger from "../utils/logger"
 import sendResponse from "../utils/send-response"
 import User from "../models/user"
 import Review from "../models/review"
-import { validateProfileData } from "../utils/validators"
+import { validateProfileData, validateUserFavouriteInfo } from "../utils/validators"
 import { generateUsernameSuggestions } from "../utils/suggest-username"
 import { v2 as cloudinary } from "cloudinary"
-import { z } from "zod"
-
-type FormData = {
-    name?: string;
-    username?: string;
-    bio?: string;
-    preferredGenres?: string[];
-    profileImage?: {
-        path: string;
-        filename: string
-    }
-}
 
 export const getUserInfo = async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -147,6 +135,100 @@ export const updateUserInfo = async (req: AuthenticatedRequest, res: Response) =
         })
     } catch (error) {
         logger.error("Unable to update user info", {
+            message: error instanceof Error ? error.message : error,
+            stack: error instanceof Error ? error.stack : ""
+        })
+
+        sendResponse({
+            res,
+            success: false,
+            statusCode: 500,
+            message: "Internal server error"
+        })
+    }
+}
+
+export const getUserFavouriteInfo = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = await User.findById(req.userId)
+
+        if (!user) {
+            logger.warn("Couldn't find user")
+            sendResponse({
+                res,
+                message: "Couldn't find user",
+                statusCode: 400,
+                success: false
+            })
+            return;
+        }
+
+        sendResponse({
+            res,
+            data: {
+                favourites: user.favorites
+            }
+        })
+        
+    } catch (error) {
+        logger.error("Unable to get user favourite info", {
+            message: error instanceof Error ? error.message : error,
+            stack: error instanceof Error ? error.stack : ""
+        })
+
+        sendResponse({
+            res,
+            success: false,
+            statusCode: 500,
+            message: "Internal server error"
+        })
+    }
+}
+
+export const updateUserFavouriteInfo = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const { data, error } = validateUserFavouriteInfo(req.body)
+
+        if (error) {
+            logger.warn("Validation error", error.message)
+            sendResponse({
+                res,
+                statusCode: 400,
+                success: false,
+                message: error.message
+            })
+            return;
+        }
+
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            logger.warn("Couldn't find user")
+            sendResponse({
+                res,
+                message: "Couldn't find user",
+                statusCode: 400,
+                success: false
+            })
+            return;
+        }
+
+        const exists = user.favorites.some((favourite) => favourite.id === data.id);
+
+        if (exists) {
+            user.favorites = user.favorites.filter((favourite) => !(favourite.id === data.id && favourite.media_type === data.media_type))
+        } else {
+            user.favorites.push(data)
+        }
+
+        await user.save();
+        sendResponse({
+            res,
+            success: true,
+            message: "Movie added to favourites!"
+        })
+    } catch (error) {
+        logger.error("Unable to update user favourite info", {
             message: error instanceof Error ? error.message : error,
             stack: error instanceof Error ? error.stack : ""
         })

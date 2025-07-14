@@ -14,8 +14,14 @@ export interface IUser extends Document {
     preferredGenres: string[]
     isOnboarded: boolean;
     favorites: {
-        itemId: string;
-        itemType: "movie" | "tv"
+        id: number,
+        title?: string;
+        name?: string;
+        first_air_date?: string;
+        release_date?: string;
+        poster_path: string;
+        vote_average: number;
+        media_type: "movie" | "tv";
     }[];
     watchLists: {
         _id: Types.ObjectId;

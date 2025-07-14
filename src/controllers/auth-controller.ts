@@ -137,7 +137,8 @@ export const loginUser = async (req: Request, res: Response) => {
                     userId: user._id,
                     username: user.username,
                     token: accessToken,
-                    isOnboarded: user.isOnboarded
+                    isOnboarded: user.isOnboarded,
+                    favorites: user.favorites
                 }
             })
             return;
@@ -359,7 +360,8 @@ export const getAuthData = async (req: AuthenticatedRequest, res: Response) => {
                 userId: user._id,
                 username: user.username,
                 isOnboarded: user.isOnboarded,
-                avatarUrl: user.profileImage.path
+                avatarUrl: user.profileImage.path,
+                favorites: user.favorites
             }
         })  
     } catch (error) {

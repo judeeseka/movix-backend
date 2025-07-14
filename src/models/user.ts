@@ -42,8 +42,14 @@ const UserSchema = new mongoose.Schema<IUser>({
     },
     favorites: [
         {
-            itemId: { type: String },
-            itemType: { type: String, enum: ["movie", "tv"] }
+            id: { type: Number },
+            title: { type: String },
+            name: { type: String },
+            first_air_date: { type: Date },
+            release_date: { type: Date },
+            poster_path: { type: String },
+            vote_average: { type: Number },
+            media_type: { type: String, enum: ["movie", "tv"] }
         }
     ],
     watchLists: [
