@@ -6,25 +6,25 @@ Movix API is the backend service powering the Movix platform. It provides secure
 
 ## ✨ Features
 
-- 🧾 **RESTful API Endpoints** – Modular routes for movies, users, reviews, and more.  
-- 🔐 **JWT Authentication** – Secure registration and login system.  
-- 📁 **Watchlist Management** – Users can save and manage movies they want to watch.  
-- 📝 **Reviews & Ratings** – Authenticated users can rate and review movies.  
-- 🎥 **External API Integration** – Fetch real-time data from TMDb.  
-- 🧪 **Input Validation & Error Handling** – Consistent, secure, and descriptive API responses.  
-- ⚙️ **Scalable & Modular Codebase** – Easy to maintain and extend.  
+- 🧾 **RESTful API Endpoints** – Modular routes for movies, users, reviews, and more.
+- 🔐 **JWT Authentication** – Secure registration and login system.
+- 📁 **Watchlist Management** – Users can save and manage movies they want to watch.
+- 📝 **Reviews & Ratings** – Authenticated users can rate and review movies.
+- 🎥 **External API Integration** – Fetch real-time data from TMDb.
+- 🧪 **Input Validation & Error Handling** – Consistent, secure, and descriptive API responses.
+- ⚙️ **Scalable & Modular Codebase** – Easy to maintain and extend.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Runtime:** Node.js  
-- **Framework:** Express.js  
-- **Database:** MongoDB  
-- **ORM/ODM:** Mongoose  
-- **Authentication:** JWT  
-- **Validation:** Zod 
-- **External API:** [TMDb API](https://www.themoviedb.org/documentation/api)  
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MongoDB
+- **ORM/ODM:** Mongoose
+- **Authentication:** JWT
+- **Validation:** Zod
+- **External API:** [TMDb API](https://www.themoviedb.org/documentation/api)
 
 ---
 
@@ -68,6 +68,7 @@ TMDB_API_KEY=your_tmdb_api_key
 Registers a new user.
 
 **Request:**
+
 ```json
 {
   "name": "Jane Doe",
@@ -77,6 +78,7 @@ Registers a new user.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "User registered successfully",
@@ -94,6 +96,7 @@ Registers a new user.
 Logs in a user and returns a JWT token.
 
 **Request:**
+
 ```json
 {
   "email": "jane@example.com",
@@ -102,6 +105,7 @@ Logs in a user and returns a JWT token.
 ```
 
 **Response:**
+
 ```json
 {
   "token": "jwt-token",
@@ -119,6 +123,7 @@ Logs in a user and returns a JWT token.
 Fetches trending movies from TMDb.
 
 **Response:**
+
 ```json
 {
   "results": [
@@ -139,6 +144,7 @@ Fetches trending movies from TMDb.
 Adds a movie to the user’s watchlist.
 
 **Request (Authenticated):**
+
 ```json
 {
   "id": 123,
@@ -156,8 +162,9 @@ Fetches the authenticated user's watchlist.
 
 ## 🙌 Contributing
 
-Contributions are welcome!  
-- Fork the repository  
+Contributions are welcome!
+
+- Fork the repository
 - Create a new feature branch
 - Commit your changes
 - Open a pull request
@@ -172,4 +179,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 👨‍💻 Author
 
-Developed with ❤️ by [Your Name](https://github.com/your-username)
+Developed with ❤️ by [Your Name](https://github.com/judeeseka)

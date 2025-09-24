@@ -16,12 +16,12 @@ const app = express();
 
 connectToDb()
 
-const allowedOrigins: [
+const allowedOrigins = [
     "http://localhost:5174",
     "https://movix-app-vert.vercel.app"
 ]
 
-const corsOptions = {
+const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
 
