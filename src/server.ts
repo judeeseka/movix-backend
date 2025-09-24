@@ -16,12 +16,27 @@ const app = express();
 
 connectToDb()
 
+const allowedOrigins: [
+    "http://localhost:5174",
+    "https://movix-app-vert.vercel.app"
+]
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true
+}
+
 app.use(helmet());
 app.use(cookieParser())
-app.use(cors({
-    origin: "http://localhost:5174",
-    credentials: true
-}))
+app.use(cors(corsOptions))
 app.use(express.json());
 
 app.use("/api/movies", movieRoutes)
